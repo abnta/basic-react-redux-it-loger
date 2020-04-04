@@ -1,16 +1,23 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import M from 'materialize-css/dist/js/materialize.min.js'
 
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types';
 
-import { addLog } from './../../actions/logActions'
+import { addLog } from './../../actions/logActions';
+import { getTechs } from './../../actions/techActions';
 
-const AddLogModal = ({ addLog }) => {
+const AddLogModal = ({ addLog, techs }) => {
 
     const[message, setmessage] = useState('');
     const [attention, setAttention] = useState(false);
     const [tech, setTech] = useState('');
+
+    useEffect(() => {
+        if (techs === null) {
+            getTechs();
+        }
+    },[techs])
 
     const onSubmit = () => {
         if (message === '' || tech === '') {
@@ -39,9 +46,7 @@ const AddLogModal = ({ addLog }) => {
                     <div className="input-field">
                         <select name="tech" value={tech} className="browser-default" onChange={e => setTech(e.target.value)}>
                             <option value="" disabled> Select Technician</option>
-                            <option value="John Doe" > John Doe</option>
-                            <option value="Sara Smith" > Sara Smith</option>
-                            <option value="Sara Wilson" > Sara Wilson</option>
+                            { techs? techs.map((tech) => (<option key={tech.id} value={`${tech.firstName} ${tech.lastName}`}> { tech.firstName } {' '} {tech.lastName} </option>)): <option disabled> Loading ...</option> }
                         </select>
                     </div>
                 </div>
@@ -72,4 +77,8 @@ AddLogModal.propTypes = {
     addLog: PropTypes.func.isRequired
 }
 
-export default connect(null,{ addLog })(AddLogModal)
+const mapStateToProp = state => ({
+    techs: state.tech.techs
+});
+
+export default connect(mapStateToProp,{ addLog, getTechs })(AddLogModal)

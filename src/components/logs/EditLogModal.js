@@ -4,7 +4,9 @@ import M from "materialize-css/dist/js/materialize.min.js";
 import { connect } from "react-redux";
 import { updateLog, clearCurrent } from "./../../actions/logActions";
 
-const EditLogModal = ({ updateLog, clearCurrent, current }) => {
+import { getTechs } from './../../actions/techActions'
+
+const EditLogModal = ({ updateLog, clearCurrent, current, techs, getTechs }) => {
   const [message, setmessage] = useState("");
   const [attention, setAttention] = useState(false);
   const [tech, setTech] = useState("");
@@ -16,6 +18,12 @@ const EditLogModal = ({ updateLog, clearCurrent, current }) => {
       setTech(current.tech);
     }
   }, [current]);
+
+  useEffect(() => {
+    if (techs === null) {
+      getTechs()
+    }
+  },[techs])
 
   const onSubmit = () => {
     if (message === "" || tech === "") {
@@ -60,9 +68,7 @@ const EditLogModal = ({ updateLog, clearCurrent, current }) => {
                 {" "}
                 Select Technician
               </option>
-              <option value="John Doe"> John Doe</option>
-              <option value="Sara Smith"> Sara Smith</option>
-              <option value="Sara Wilson"> Sara Wilson</option>
+                { techs ? techs.map((tech) => (<option key={tech.id} value={`${tech.firstName} ${tech.lastName}`}> {tech.firstName}{' '}{tech.lastName} </option>)) : <option disabled> Loading ...</option>}
             </select>
           </div>
         </div>
@@ -102,9 +108,10 @@ const modalStyle = {
 };
 
 const mapStateToProps = state => ({
-  current: state.log.current
+  current: state.log.current,
+  techs: state.tech.techs
 });
 
-export default connect(mapStateToProps, { updateLog, clearCurrent })(
+export default connect(mapStateToProps, { updateLog, clearCurrent, getTechs})(
   EditLogModal
 );
